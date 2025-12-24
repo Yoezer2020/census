@@ -1,4 +1,5 @@
-version: '3'
+version: '3.8'  # Updated to a newer version (optional but good)
+
 services:
   app:
     env_file:
@@ -7,29 +8,50 @@ services:
     restart: always
     build: .
     ports:
-      - '$PORT:$PORT'
-    links:
+      - '${PORT}:${PORT}'  # e.g., 3000:3000
+    depends_on:
       - mysql
+      - minio
     environment:
       DB_HOST: mysql
+      # You can also add MinIO env vars here if needed
+      # MINIO_ENDPOINT: minio
+      # MINIO_PORT: 9000
+
   mysql:
-    image: mysql
+    image: mysql:8.0
     container_name: mysql2_container
     restart: always
     environment:
       MYSQL_DATABASE: '${DB_DATABASE}'
+      MYSQL_USER: '${DB_USER}'
       MYSQL_PASSWORD: '${DB_PASSWORD}'
       MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
-
     ports:
-      - '${DB_PORT}:3306'
+      - '${DB_PORT}:3306'  # e.g., 3307:3306 to avoid host conflicts
     expose:
       - '3306'
     volumes:
-      - mysql:/var/lib/mysql
+      - mysql-data:/var/lib/mysql
     env_file:
       - .env
 
+  minio:
+    image: quay.io/minio/minio
+    container_name: minio
+    restart: always
+    ports:
+      - '9000:9000'   
+      - '9001:9001'    
+    environment:
+      MINIO_ROOT_USER: '${MINIO_ROOT_USER}'          
+      MINIO_ROOT_PASSWORD: '${MINIO_ROOT_PASSWORD}'  
+    volumes:
+      - minio-data:/data
+    command: server /data --console-address ":9001"
+
 volumes:
-  mysql:
+  mysql-data:
+    driver: local
+  minio-data:
     driver: local
