@@ -27,7 +27,7 @@
     "generate:simple": "nest g --no-spec",
     "generate:custom": "node scripts/generate-module.js",
     "g": "yarn generate",
-    "create:module":"yarn hygen generator new module",
+    "create:module": "yarn hygen generator new module",
     "migration:revert": "yarn run typeorm migration:revert",
     "schema:drop": "yarn run typeorm schema:drop",
     "watch:dev": "nest start --watch ./src/main.ts",
